@@ -25,5 +25,6 @@ class Pessoa(models.Model):
     telefone = models.CharField(max_length=50, blank=False, null=False)
     sexo = models.CharField(max_length=50, choices=SEXO_CHOICE, blank=True, null=True)
 
+
     def __str__(self):
         return self.nome_completo
