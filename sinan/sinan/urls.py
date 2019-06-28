@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     url(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS
     path('admin/', admin.site.urls),
+    path('', admin.site.urls),
 ]
