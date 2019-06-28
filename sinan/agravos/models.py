@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import Cidade, Estado, Unidade_de_Saude
+from core.models import Paciente
 from multiselectfield import MultiSelectField
 
 AGRAVO = (
@@ -244,23 +245,26 @@ TIPOS_EXAMES = (
     ('TR_PCR', 'RT-PCR'),
 )
 
-class Tipo_Agravo(models.Model):
-    agravo = models.CharField(choices=AGRAVO, max_length=100, default='')
+class Tuberculose(models.Model):
+    agravo = models.CharField(choices=AGRAVO, max_length=100, default='Tuberculose')
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    #notificacao = models.ForeignKey(NotificacaoTuberculose, on_delete=models.CASCADE)
     data_notificacao = models.DateField(blank=True, null=True)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True, related_name='agravo_estado')
     cidade = models.ForeignKey(Cidade, on_delete= models.CASCADE, null=True, blank=True, related_name='agravo_cidade')
-    unidade_de_saude = models.ForeignKey(Unidade_de_Saude, on_delete=models.CASCADE, null=True, blank=True, related_name='agravo_cidade')
+    unidade_de_saude = models.ForeignKey(Unidade_de_Saude, on_delete=models.CASCADE, null=True, blank=True, related_name='agravo_usf')
     data_diagnostico = models.DateField(blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Tipo de Agravo'
-        verbose_name_plural = 'Tipos de Agravos'
+        verbose_name = 'Agravo Tuberculose'
+        verbose_name_plural = 'Agravos de Tuberculose'
 
     def __str__(self):
         return self.agravo
 
-class Notificacao(models.Model):
-    tipo_agravo = models.ForeignKey(Tipo_Agravo, on_delete=models.CASCADE)
+
+class NotificacaoTuberculose(models.Model):
+    tipo_agravo = models.ForeignKey(Tuberculose, on_delete=models.CASCADE)
     ocupacao = models.CharField(max_length=100)
     tipo_de_entrada = models.CharField(max_length=50, choices=TIPO_DE_ENTRADA)
     institucionalizado = models.CharField(max_length=50, choices=INSTITUCIONALIZADO)
@@ -283,14 +287,14 @@ class Notificacao(models.Model):
     unidade_de_saude = models.ForeignKey(Unidade_de_Saude, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Notificação'
-        verbose_name_plural = 'Notificações'
+        verbose_name = 'Notificação de Tuberculose'
+        verbose_name_plural = 'Notificações de Tuberculose'
 
     def __str__(self):
         return self.tipo_agravo.agravo
 
 
-# DENGUE ---------------------------------------------------------------------
+# DENGUE ---------------------------------------------------------------------------------------------------------------
 class Sintomas(models.Model):
     nome = models.CharField(max_length=100)
 
@@ -312,8 +316,26 @@ class Doencas(models.Model):
         return self.nome
 
 
+class Dengue(models.Model):
+    agravo = models.CharField(choices=AGRAVO, max_length=100, default='Dengue')
+    data_notificacao = models.DateTimeField(blank=True, null=True)
+    data_primeiros_sintomas = models.DateTimeField()
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True, related_name='agravo_dengue_estado')
+    cidade = models.ForeignKey(Cidade, on_delete= models.CASCADE, null=True, blank=True, related_name='agravo_dengue_cidade')
+    unidade_de_saude = models.ForeignKey(Unidade_de_Saude, on_delete=models.CASCADE, null=True, blank=True, related_name='agravo_dengue_usf')
+    data_diagnostico = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Agravo Dengue'
+        verbose_name_plural = 'Agravos Dengue'
+
+    def __str__(self):
+        return self.agravo
+
+
 class NotificaoDengue(models.Model):
-    tipo_agravo = models.ForeignKey(Tipo_Agravo, on_delete=models.CASCADE)
+    agravo = models.ForeignKey(Dengue, on_delete=models.CASCADE)
     sinais_clinicos = models.ManyToManyField(Sintomas)
     doencas = models.ManyToManyField(Doencas)
     isolamento = models.CharField(max_length=50, choices=RESULTADO)
@@ -326,13 +348,13 @@ class NotificaoDengue(models.Model):
         verbose_name_plural = 'Notificações de Dengue'
 
     def __str__(self):
-        return self.tipo_agravo
+        return self.agravo.agravo
 
 
 class Exames(models.Model):
     tipo_de_exame = models.CharField(max_length=50, choices=TIPOS_EXAMES)
     descricao = models.CharField(max_length=250, blank=True, null=True)
-    exames = models.ForeignKey(NotificaoDengue, on_delete=models.CASCADE)
+    exames = models.ForeignKey(Dengue, on_delete=models.CASCADE)
     primeira_coleta = models.DateField()
     segunda_coleta = models.DateField(blank=True, null=True)
     resul_primeira_coleta = models.CharField(max_length=50, choices=RESULTADO)
@@ -343,19 +365,19 @@ class Exames(models.Model):
         verbose_name_plural = 'Exames'
 
     def __str__(self):
-        return self.nome
+        return self.tipo_de_exame
 
-# class Author(models.Model):
-#    name = models.CharField(max_length=100)
-
-class Book(models.Model):
-   author = models.ForeignKey(NotificaoDengue, on_delete=models.CASCADE)
-   title = models.CharField(max_length=100)
-
-# HANSENIESE ---------------------------------------------------------------------
+# HANSENIESE -----------------------------------------------------------------------------------------------------------
 
 class NotificacaoHanseniese(models.Model):
-    tipo_agravo = models.ForeignKey(Tipo_Agravo, on_delete=models.CASCADE)
+    agravo = models.CharField(choices=AGRAVO, max_length=100, default='Hanseniese')
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    data_notificacao = models.DateField(blank=True, null=True)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True, related_name='not_hanseniese_estado')
+    cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE, null=True, blank=True, related_name='not_hanseniese_cidade')
+    unidade_de_saude = models.ForeignKey(Unidade_de_Saude, on_delete=models.CASCADE, null=True, blank=True,
+                                         related_name='not_hanseniese_usf')
+    data_diagnostico = models.DateField(blank=True, null=True)
     numero_lesoes = models.IntegerField()
     forma_clinica = models.CharField(max_length=50, choices=FORMA_CLINICA)
     classificacao_operacional = models.CharField(max_length=50, choices=CLASSIFICACAO_OPERACIONAL)
@@ -369,8 +391,8 @@ class NotificacaoHanseniese(models.Model):
     unidade_de_saude = models.ForeignKey(Unidade_de_Saude, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Notificação Hanseniese'
-        verbose_name_plural = 'Notificações de Hanseniese'
+        verbose_name = 'Agravo Hanseniese'
+        verbose_name_plural = 'Agravo Hanseniese'
 
     def __str__(self):
-        return self.tipo_agravo
+        return self.paciente.nome_completo

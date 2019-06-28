@@ -4,13 +4,16 @@ class Estado(models.Model):
     nome = models.CharField(max_length=80)
     codigo_ibge = models.CharField(max_length=80)
 
+    class Meta:
+        verbose_name = 'Estado'
+        verbose_name_plural = 'Estados'
+
     def __str__(self):
         return self.nome
 
 class Cidade(models.Model):
     nome = models.CharField(max_length=80)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE,
-                                    related_name='cidade_estado' )
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, related_name='cidade_estado')
     codigo_ibge = models.CharField(max_length=80)
 
     def __str__(self):
@@ -107,8 +110,8 @@ class Unidade_de_Saude(models.Model):
     codigo = models.CharField(max_length=10)
     cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE,
                                related_name='unidade_cidade')
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE,
-                               related_name='unidade_estado')
+    # estado = models.ForeignKey(Estado, on_delete=models.CASCADE,
+    #                            related_name='unidade_estado')
     pais = models.CharField(blank=True, max_length=500)
 
     def __str__(self):
