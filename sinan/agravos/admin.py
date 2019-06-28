@@ -4,30 +4,32 @@ from .models import (
     Tipo_Agravo, Notificacao,
     NotificaoDengue, Sintomas,
     Doencas, Exames,
-    NotificacaoHanseniese
+    NotificacaoHanseniese, Book
 )
 
-
-class ExameDengueInline(admin.TabularInline): # TabularInline economiza espaço
+class ExameInline(admin.TabularInline):
     model = Exames
 
-
 class NotificacaoAdmin(admin.ModelAdmin):
-    #inlines = [ExameDengueInline]
     list_display = ['tipo_agravo','inicio_tratamento','unidade_de_saude']
     list_filter = (
-        'tipo_agravo',
         'inicio_tratamento',
-        'unidade_de_saude'
+        'unidade_de_saude__nome'
+    )
+
+class NotificacaoDengueAdmin(admin.ModelAdmin):
+    inlines = [ExameInline]
+    list_display = ['tipo_agravo', 'sorotipo',]
+    list_filter = (
+        'sorotipo',
+        'doencas__nome',
     )
 
 
-
-admin.site.register(Exames)
 admin.site.register(Tipo_Agravo)
 admin.site.register(Sintomas)
-admin.site.register(NotificaoDengue)
+admin.site.register(NotificaoDengue, NotificacaoDengueAdmin)
 admin.site.register(Doencas)
 admin.site.register(Notificacao, NotificacaoAdmin)
 admin.site.register(NotificacaoHanseniese)
-
+admin.site.register(Exames)

@@ -236,6 +236,14 @@ ESQUEMA_TERAPEUTICO= (
     ('OUTROS', 'Não Realizada'),
 )
 
+TIPOS_EXAMES = (
+    ('CHIKUNGUNYA', 'Sorologia(IgM) Chikungunya'),
+    ('PRNT', 'Exame PRNT'),
+    ('DENGUE', 'Sorologia Dengue'),
+    ('NS1', 'Exame NS1'),
+    ('TR_PCR', 'RT-PCR'),
+)
+
 class Tipo_Agravo(models.Model):
     agravo = models.CharField(choices=AGRAVO, max_length=100, default='')
     data_notificacao = models.DateField(blank=True, null=True)
@@ -302,9 +310,29 @@ class Doencas(models.Model):
 
     def __str__(self):
         return self.nome
-#
+
+
+class NotificaoDengue(models.Model):
+    tipo_agravo = models.ForeignKey(Tipo_Agravo, on_delete=models.CASCADE)
+    sinais_clinicos = models.ManyToManyField(Sintomas)
+    doencas = models.ManyToManyField(Doencas)
+    isolamento = models.CharField(max_length=50, choices=RESULTADO)
+    sorotipo = models.CharField(max_length=50, choices=SOROTIPO)
+    histopatologia = models.CharField(max_length=50, choices=HISTOPATOLOGIA)
+    imunohistoquimica = models.CharField(max_length=50, choices=RESULTADO)
+
+    class Meta:
+        verbose_name = 'Notificação Dengue'
+        verbose_name_plural = 'Notificações de Dengue'
+
+    def __str__(self):
+        return self.tipo_agravo
+
+
 class Exames(models.Model):
-    nome = models.CharField(max_length=250)
+    tipo_de_exame = models.CharField(max_length=50, choices=TIPOS_EXAMES)
+    descricao = models.CharField(max_length=250, blank=True, null=True)
+    exames = models.ForeignKey(NotificaoDengue, on_delete=models.CASCADE)
     primeira_coleta = models.DateField()
     segunda_coleta = models.DateField(blank=True, null=True)
     resul_primeira_coleta = models.CharField(max_length=50, choices=RESULTADO)
@@ -317,23 +345,12 @@ class Exames(models.Model):
     def __str__(self):
         return self.nome
 
-class NotificaoDengue(models.Model):
-    tipo_agravo = models.ForeignKey(Tipo_Agravo, on_delete=models.CASCADE)
-    sinais_clinicos = models.ManyToManyField(Sintomas)
-    doencas = models.ManyToManyField(Doencas)
-    #exames= models.ManyToManyField(Exames)
-    resul_segunda_coleta = models.CharField(max_length=50, choices=RESULTADO)
-    isolamento = models.CharField(max_length=50, choices=RESULTADO)
-    sorotipo = models.CharField(max_length=50, choices=SOROTIPO)
-    histopatologia = models.CharField(max_length=50, choices=HISTOPATOLOGIA)
-    imunohistoquimica = models.CharField(max_length=50, choices=RESULTADO)
+# class Author(models.Model):
+#    name = models.CharField(max_length=100)
 
-    class Meta:
-        verbose_name = 'Notificação Dengue'
-        verbose_name_plural = 'Notificações de Dengue'
-
-    def __str__(self):
-        return self.tipo_agravo
+class Book(models.Model):
+   author = models.ForeignKey(NotificaoDengue, on_delete=models.CASCADE)
+   title = models.CharField(max_length=100)
 
 # HANSENIESE ---------------------------------------------------------------------
 
