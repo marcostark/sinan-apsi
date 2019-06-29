@@ -1,7 +1,6 @@
 from django.db import models
 from core.models import Cidade, Estado, Unidade_de_Saude
 from core.models import Paciente
-from multiselectfield import MultiSelectField
 
 AGRAVO = (
     ('Hanseniase', 'Hanseniase'),
